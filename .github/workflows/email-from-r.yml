@@ -1,0 +1,28 @@
+name: email-from-r
+
+on:
+  schedule:
+    - cron: '0 */1 * * *' # runs every other hour
+
+jobs:
+  build:
+    runs-on: macOS-latest
+    steps:
+
+      - name: checkout repo content
+        uses: actions/checkout@v2 # checkout the repository content to github runner
+
+      - name: setup R
+      - uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: '3.6.1' # the R version to install
+
+      - name: install r packages # blastula
+        run: Rscript -e "install.packages('blastula')" 
+
+      - name: execute r script # email-from-r.R
+        env: 
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+        run: Rscript email-from-r.R
